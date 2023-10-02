@@ -1,0 +1,13 @@
+controller:
+  customConfigMap: nginx-config
+  globalConfiguration:
+    create: true
+  customPorts:
+    - containerPort: 5432
+      name: postgresql
+  service:
+    customPorts:
+      - name: postgresql
+        protocol: TCP
+        port: 5432
+        targetPort: 5432

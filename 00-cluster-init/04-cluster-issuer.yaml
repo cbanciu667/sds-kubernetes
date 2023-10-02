@@ -1,0 +1,30 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+    # We can reference local namespace issuers by changing the kind here (i.e. a locally namespaced Issuer).
+    # The default value is ClusterIssuer (global cluster issuer)
+metadata:
+  name: letsencrypt-cluster-issuer
+  namespace: cert-manager
+spec:
+  acme:
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: cb2375@outlook.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Secret resource used to store the account's private key.
+      name: cluster-issuer-account-key
+    solvers:
+    - selector:
+        dnsZones:
+          - mydomain.io
+      dns01:
+        route53:
+          region: eu-central-1
+          accessKeyIDSecretRef:
+            name: cluster-issuer-secret
+            key: access_key_id
+          secretAccessKeySecretRef:
+            name: cluster-issuer-secret
+            key: secret-access-key

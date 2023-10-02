@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sds-project-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "Main SDS applications project"
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: dev
+    server: https://kubernetes.default.svc
+  - namespace: prod
+    server: https://kubernetes.default.svc
+  - namespace: argocd
+    server: https://kubernetes.default.svc
+  orphanedResources:
+    warn: true
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: sds-applications
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: git@github.com:cbanciu667/sds-argocd.git
+        revision: HEAD
+        files:
+          - path: "clusters/**/config.yaml"
+  template:
+    metadata:
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "webapp=ghcr.io/sds-webapp, executor=ghcr.io/sds-api, orchestrator=ghcr.io/sds-rust"
+        argocd-image-updater.argoproj.io/webapp.update-strategy: newest-build
+        argocd-image-updater.argoproj.io/webapp.allow-tags: regexp:main-(?P<ts>[1-9][0-9]*)
+        #argocd-image-updater.argoproj.io/executor.kustomize.image-name: "executor" # could be wrong
+        argocd-image-updater.argoproj.io/executor.update-strategy: newest-build
+        argocd-image-updater.argoproj.io/executor.allow-tags: regexp:main-(?P<ts>[1-9][0-9]*)
+        argocd-image-updater.argoproj.io/orchestrator.update-strategy: newest-build
+        argocd-image-updater.argoproj.io/orchestrator.allow-tags: regexp:main-(?P<ts>[1-9][0-9]*)
+        argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/sds-git-secret
+        # argocd-image-updater.argoproj.io/write-back-target: kustomization
+        argocd-image-updater.argoproj.io/git-branch: master
+        argocd.argoproj.io/refresh: hard
+      name: '{{cluster.name}}-apps'
+    spec:
+      project: sds-project-apps
+      source:
+        repoURL: git@github.com:cbanciu667/sds-argocd.git
+        targetRevision: HEAD
+        path: "apps/{{cluster.name}}"
+      destination:
+        server: '{{cluster.address}}'
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: true
+        syncOptions:
+          - Validate=true
+          - CreateNamespace=false
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 1m

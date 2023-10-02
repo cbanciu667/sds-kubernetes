@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sds-project-infrastructure
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "SDS infrastructure project"
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: dev
+    server: https://kubernetes.default.svc
+  - namespace: prod
+    server: https://kubernetes.default.svc
+  - namespace: monitoring
+    server: https://kubernetes.default.svc    
+  - namespace: argocd
+    server: https://kubernetes.default.svc
+  - namespace: kube-system
+    server: https://kubernetes.default.svc
+  - namespace: istio-system
+    server: https://kubernetes.default.svc
+  - namespace: istio-ingress
+    server: https://kubernetes.default.svc
+  - namespace: postgres
+    server: https://kubernetes.default.svc
+  - namespace: keda
+    server: https://kubernetes.default.svc
+  - namespace: tekton-pipelines
+    server: https://kubernetes.default.svc
+  - namespace: tekton-pipelines-resolvers
+    server: https://kubernetes.default.svc
+  - namespace: kyverno
+    server: https://kubernetes.default.svc
+  orphanedResources:
+    warn: true
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: sds-infrastructure
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io  
+spec:
+  generators:
+    - git:
+        repoURL: git@github.com:cbanciu667/sds-argocd.git
+        revision: HEAD
+        files:
+          - path: "clusters/**/config.yaml"
+  template:
+    metadata:
+      name: '{{cluster.name}}-infrastructure'
+    spec:
+      project: sds-project-infrastructure
+      source:
+        repoURL: git@github.com:cbanciu667/sds-argocd.git
+        targetRevision: HEAD
+        path: 'infrastructure/{{cluster.name}}'
+      destination:
+        server: '{{cluster.address}}'
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: true
+        syncOptions:
+          - Validate=true
+          - CreateNamespace=false
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 1m
+            factor: 2
+            maxDuration: 3m

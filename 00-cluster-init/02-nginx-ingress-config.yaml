@@ -1,0 +1,23 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-config
+  namespace: nginx-ingress
+data:
+  proxy-connect-timeout: "10s"
+  proxy-read-timeout: "15s"
+  proxy-body-size: "2g"
+  client-max-body-size: "2g"
+  redirect-to-https: "true"
+
+---
+apiVersion: k8s.nginx.org/v1alpha1
+kind: GlobalConfiguration
+metadata:
+  name: nginx-ingress-nginx-ingress # this name is the auto generated name
+  namespace: nginx-ingress
+spec:
+  listeners:
+  - name: postgres
+    port: 5432
+    protocol: TCP
