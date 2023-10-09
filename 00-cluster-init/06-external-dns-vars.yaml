@@ -1,0 +1,32 @@
+aws:
+  credentials:
+    secretKey: ""
+    accessKey: ""
+    secretName: "external-dns-secret"
+  region: "eu-central-1"
+
+domainFilters:
+  - "DOMAIN.COM"
+
+policy: "sync"
+provider: "aws"
+
+txtOwnerId: "K8S_CLUSTER_NAME"
+interval: "1m"
+
+ingress:
+  enabled: true
+  class: "nginx"
+
+rbac:
+  create: true
+
+## Additional security context settings
+securityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsNonRoot: true
+
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001

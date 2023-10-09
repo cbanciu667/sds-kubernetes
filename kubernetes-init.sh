@@ -81,9 +81,13 @@ helm install \
 kubectl apply -f 00-cluster-init/04-cluster-issuer.yaml
 
 # External DNS
+export HELM_EXPERIMENTAL_OCI=1
 kubectl apply -f 00-cluster-init/05-sealed-external-dns-sealed-secret.yaml
 helm repo add external-dns https://kubernetes-sigs.github.io/external-dns
-helm upgrade --install external-dns external-dns/external-dns -n external-dns
+helm upgrade --install external-dns oci://registry-1.docker.io/bitnamicharts/external-dns \
+    -f 00-cluster-init/06-external-dns-vars.yaml \
+    --version $EXTERNAL_DNS_VERSION \
+    --namespace external-dns
 
 # ArgoCD
 kubectl create secret generic $PLATFORM_NAME-git-secret --dry-run=client -n argocd \
