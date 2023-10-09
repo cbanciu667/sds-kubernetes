@@ -2,16 +2,20 @@ aws:
   credentials:
     secretKey: ""
     accessKey: ""
-    secretName: "external-dns-secret"
-  region: "eu-central-1"
-
+    accessKeyIDSecretRef:
+      name: "external-dns-secret"
+      key: "access-key-id"
+    secretAccessKeySecretRef:
+      name: "external-dns-secret"
+      key: "access-key-secret"
+  zoneType: "public"      
 domainFilters:
-  - "DOMAIN.COM"
+  - "domain.com"
 
 policy: "sync"
 provider: "aws"
 
-txtOwnerId: "K8S_CLUSTER_NAME"
+txtOwnerId: "cluster-name"
 interval: "1m"
 
 ingress:
@@ -30,3 +34,6 @@ securityContext:
 podSecurityContext:
   enabled: true
   fsGroup: 1001
+
+logLevel: info
+# debug
