@@ -18,6 +18,9 @@ metadata:
   namespace: nginx-ingress
 spec:
   listeners:
-  - name: postgres
+  - name: postgres-dev
+    port: 5432
+    protocol: TCP
+  - name: postgres-prod
     port: 5432
     protocol: TCP

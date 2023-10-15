@@ -24,7 +24,7 @@ spec:
     server: https://kubernetes.default.svc
   - namespace: istio-ingress
     server: https://kubernetes.default.svc
-  - namespace: postgres
+  - namespace: minio-operator
     server: https://kubernetes.default.svc
   - namespace: keda
     server: https://kubernetes.default.svc
