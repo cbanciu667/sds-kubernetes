@@ -9,18 +9,3 @@ data:
   proxy-body-size: "2g"
   client-max-body-size: "2g"
   redirect-to-https: "true"
-
----
-apiVersion: k8s.nginx.org/v1alpha1
-kind: GlobalConfiguration
-metadata:
-  name: nginx-ingress-nginx-ingress # this name is the auto generated name
-  namespace: nginx-ingress
-spec:
-  listeners:
-  - name: postgres-dev
-    port: 5432
-    protocol: TCP
-  - name: postgres-prod
-    port: 5432
-    protocol: TCP

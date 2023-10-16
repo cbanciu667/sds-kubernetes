@@ -38,7 +38,7 @@ kubectl get storageclass
 # Nginx Ingress Controller - F5 version
 export HELM_EXPERIMENTAL_OCI=1
 kubectl apply -f 00-cluster-init/02-nginx-ingress-config.yaml
-helm install nginx-ingress oci://ghcr.io/nginxinc/charts/nginx-ingress --version $NGINX_INGRESS_VERSION -f 00-cluster-init/02-nginx-helm-vars.yaml -n nginx-ingress
+helm upgrade nginx-ingress oci://ghcr.io/nginxinc/charts/nginx-ingress --version $NGINX_INGRESS_VERSION  -f 00-cluster-init/02-nginx-helm-vars.yaml -n nginx-ingress
 kubectl describe ingressclasses
 
 # Sealed Secrets and initial secrets
