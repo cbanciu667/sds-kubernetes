@@ -61,8 +61,8 @@ kubeseal \
     --format yaml > 00-cluster-init/03-sealed-cluster-issuer-r53-secret.yaml
 
 kubectl create secret generic external-dns-secret --dry-run=client -n external-dns \
-    --from-literal=access-key-id=$PLATFORM_AWS_ACCESS_KEY_ID \
-    --from-literal=access-key-secret=$PLATFORM_SECRET_AWS_ACCESS_KEY -o yaml | \
+    --from-literal=accessKey=$PLATFORM_AWS_ACCESS_KEY_ID \
+    --from-literal=secretKey=$PLATFORM_SECRET_AWS_ACCESS_KEY -o yaml | \
 kubeseal \
     --controller-name=sealed-secrets-controller \
     --controller-namespace=kube-system \
